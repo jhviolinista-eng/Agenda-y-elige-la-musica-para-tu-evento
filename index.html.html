@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agenda y Elige la Música para tu Evento - JH Violinista</title>
+    <style>
+        /* --- PALETA DE COLORES Y ESTILO MINIMALISTA SOFISTICADO --- */
+        :root {
+            --color-fondo-principal: #f9f9f9; 
+            --color-fondo-card: #ffffff;
+            --color-oro: #b8860b; 
+            --color-acento: #4a4a4a; 
+            --color-texto-principal: #222222;
+            --color-borde-suave: #e0e0e0;
+        }
+
+        /* --- ESTILOS BASE --- */
+        body { 
+            font-family: 'Georgia', serif; 
+            background: var(--color-fondo-principal); 
+            margin: 0; 
+            padding: 40px 20px; 
+            color: var(--color-texto-principal);
+        }
+        h1 { 
+            text-align: center; 
+            color: var(--color-oro); 
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 40px; 
+            border-bottom: 2px solid var(--color-oro);
+            padding-bottom: 10px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            letter-spacing: 1px;
+        }
+
+        /* --- CONTENEDORES --- */
+        .details-container, .container { 
+            display: grid; 
+            gap: 30px; 
+            max-width: 1200px;
+            margin: 0 auto 30px auto;
+        }
+        .details-container { grid-template-columns: 1fr 1fr; }
+        .container { grid-template-columns: 2fr 1fr; } 
+
+        /* --- CARDS (FONDOS BLANCOS CON MINIMALISMO) --- */
+        .card { 
+            background: var(--color-fondo-card); 
+            padding: 30px; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--color-borde-suave);
+        }
+        .title-section { 
+            font-size: 20px; 
+            font-weight: bold; 
+            margin-bottom: 20px; 
+            color: var(--color-acento); 
+            border-bottom: 1px solid var(--color-borde-suave);
+            padding-bottom: 10px;
+            font-style: italic;
+        }
+        
+        /* --- CAMPOS DE FORMULARIO Y BOTONES DE ENVÍO --- */
+        label { font-weight: bold; display: block; margin-top: 15px; color: var(--color-texto-principal); font-size: 15px; }
+        input[type="text"], input[type="date"], input[type="time"], select { 
+            width: 100%; padding: 10px 12px; margin-top: 5px; 
+            border: 1px solid var(--color-borde-suave); border-radius: 4px; box-sizing: border-box; background: #ffffff;
+            transition: border-color 0.3s;
+            font-family: 'Georgia', serif;
+        }
+        input:focus, select:focus { border-color: var(--color-oro); outline: none; box-shadow: 0 0 0 1px var(--color-oro); }
+        
+        .btn-group { display: flex; flex-direction: column; gap: 10px; margin-top: 25px; }
+        button { 
+            width: 100%; padding: 12px; color: #fff; border: none; border-radius: 4px; 
+            font-size: 16px; cursor: pointer; transition: background 0.3s, transform 0.1s;
+            font-family: 'Georgia', serif; letter-spacing: 0.5px;
+        }
+        .btn-submit-all { 
+            background: var(--color-texto-principal); color: var(--color-oro); margin-top: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); font-size: 17px;
+        }
+        .btn-submit-all:hover { background: #333333; color: #ffd700; }
+        .btn-whatsapp { background: #25D366; }
+        .btn-whatsapp:hover { background: #1da851; }
+        .btn-email { background: #DB4437; }
+        .btn-email:hover { background: #a53229; }
+
+        /* --- FILTROS Y LISTA DE CANCIONES --- */
+        .songs-list, .selected-list { max-height: 400px; overflow-y: auto; margin-top: 10px; padding-right: 10px; }
+        .song-item { 
+            background: #ffffff; margin: 6px 0; padding: 10px 15px; border-radius: 4px; 
+            display: flex; justify-content: space-between; align-items: center; 
+            cursor: pointer; border-left: 3px solid var(--color-borde-suave); 
+            transition: background 0.2s, border-left-color 0.2s;
+        }
+        .song-item:hover { background: #fafafa; border-left-color: var(--color-oro); }
+        .song-selected { 
+            background: #fcf8e3 !important; border-left-color: var(--color-oro); 
+            font-weight: bold; color: var(--color-texto-principal);
+        }
+        .song-title { flex-grow: 1; padding-right: 10px; }
+        .youtube-link {
+            text-decoration: none; color: var(--color-oro); font-size: 12px;
+            font-weight: bold; padding: 4px 8px; border-radius: 4px;
+            background-color: #fcfcfc; border: 1px solid var(--color-borde-suave); white-space: nowrap; 
+        }
+
+        /* Estilo para el acordeón de opciones de filtro */
+        .filter-options summary {
+            font-size: 16px;
+            font-weight: bold;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 4px;
+            cursor: pointer;
+            list-style: none;
+            position: relative;
+            margin-bottom: 10px;
+        }
+        .filter-options summary::before { 
+            content: '▶'; 
+            position: absolute; 
+            left: 5px; 
+            top: 50%; 
+            transform: translateY(-50%) rotate(0deg); 
+            transition: transform 0.2s;
+            color: var(--color-oro); 
+            font-size: 10px;
+        }
+        .filter-options[open] > summary::before { transform: translateY(-50%) rotate(90deg); }
+        
+        /* Contenedor de la lista de canciones para que las opciones de filtro se muestren bien */
+        #musicSelectionContainer {
+            border: 1px solid var(--color-borde-suave);
+            padding: 15px;
+            border-radius: 4px;
+        }
+
+        /* Ocultar el selector de opciones al inicio */
+        #eventSpecificSelector {
+            display: none;
+        }
+
+        /* Estilo para los radio buttons */
+        .radio-group label {
+            display: inline-block;
+            margin-right: 15px;
+            margin-top: 10px;
+            font-weight: normal;
+        }
+        .radio-group input[type="radio"] {
+            margin-right: 5px;
+        }
+
+        /* --- MEDIA QUERIES (PARA MÓVILES) --- */
+        @media (max-width: 768px) {
+            .details-container, .container { grid-template-columns: 1fr; }
+            h1 { font-size: 26px; padding-top: 15px; }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🎻 Agenda y Elige la Música para tu Evento</h1>
+
+    <div class="details-container">
+        <div class="card">
+            <div class="title-section">Detalles Principales del Evento</div>
+            
+            <label>A Nombre de Quién está el Evento (Nombre del Contratante):</label>
+            <input type="text" id="contractName" placeholder="Ej: Jacob o Elaine Darlington">
+            
+            <label>Fecha del Evento:</label>
+            <input type="date" id="eventDate">
+            
+            <label>Hora (Opcional):</label>
+            <input type="time" id="eventTime">
+            
+            <label>Número de Teléfono:</label>
+            <input type="text" id="phoneNumber" placeholder="Ej: 555-5555">
+            
+            <label>Lugar del Evento:</label>
+            <input type="text" id="eventLocation" placeholder="Ej: Finca Las Rosas, Antigua Guatemala">
+        </div>
+        
+        <div class="card">
+            <div class="title-section">Tipo de Evento</div>
+            <div class="radio-group" id="eventType" onchange="onEventTypeChange()">
+                <label><input type="radio" name="eventType" value="Boda"> Boda</label>
+                <label><input type="radio" name="eventType" value="Boda civil"> Boda civil</label>
+                <label><input type="radio" name="eventType" value="XV Años"> XV Años</label>
+                <label><input type="radio" name="eventType" value="Cumpleaños"> Cumpleaños</label>
+                <label><input type="radio" name="eventType" value="Baby shower"> Baby shower</label>
+                <label><input type="radio" name="eventType" value="Evento Corporativo"> Evento Corporativo</label>
+                <label style="display:block;">
+                    <input type="radio" name="eventType" value="Otros"> Otros:
+                    <input type="text" id="otherEventType" style="margin-top: 0; margin-left: 10px; width: 60%; display: inline;">
+                </label>
+            </div>
+            
+            <label style="margin-top: 15px;">Evento al que asistieron:</label>
+            <input type="text" id="previousEvent" placeholder="Ej: Boda de Laura en 2023 (Pr.)">
+
+            <div style="display:flex; flex-direction:column; justify-content:center; align-items:center;">
+                
+                <p id="sendingMessage" style="color: var(--color-oro); font-weight: bold; display: none;">
+                    Enviando datos, por favor espere...
+                </p>
+
+                <button onclick="sendToGoogleSheetsAndContact()" class="btn-submit-all">
+                    💾 Guardar y Finalizar Selección
+                </button>
+                
+                <div class="btn-group" id="sendButtonsContainer" style="display:none;">
+                    <p style="text-align: center; color: var(--color-acento); margin: 10px 0 5px 0;">Elija cómo desea contactar:</p>
+                    <button onclick="sendWhatsApp()" class="btn-whatsapp">📱 Enviar por WhatsApp</button>
+                    <button onclick="sendEmail()" class="btn-email">📧 Enviar por Email</button>
+                </div>
+
+                <p class="note" style="margin-top: 20px;">
+                    *La lista será enviada a **jhviolinista@gmail.com** o al **+502 59268980**.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" style="margin-top:20px;">
+        <div class="card">
+            <div class="title-section">🎵 Repertorio Disponible (Total: 96 canciones)</div>
+            
+            <details class="filter-options" open>
+                <summary>Elija cómo desea ver la lista</summary>
+                
+                <div id="musicSelectionContainer">
+                    
+                    <details id="eventSpecificSelector" open>
+                        <summary id="eventSpecificTitle">Seleccione la parte del Evento</summary>
+                        <label id="eventSpecificLabel">Esto sugerirá el mejor ambiente musical:</label>
+                        <select id="eventSectionFilter" onchange="filterSongsBySection(this.value)">
+                            <option value="showAll">-- Mostrar lista completa / Eliminar filtro de sección --</option>
+                        </select>
+                    </details>
+                    
+                    <details id="moodSelectorDetails" style="margin-top: 15px;">
+                        <summary>O ver por Ambiente General (Mood)</summary>
+                        <label>Seleccione el ambiente deseado:</label>
+                        <select id="moodFilter" onchange="filterSongs(this.value)">
+                            <option value="showAll">-- Mostrar lista completa / Eliminar filtro de Mood --</option>
+                            <option value="Solemnidad / Épico">✨ Épico / Ceremonial</option>
+                            <option value="Elegante / Clásico">🥂 Clásico / Elegante</option>
+                            <option value="Suave / Melódico">😌 Suave / Melódico</option>
+                            <option value="Alegre / Upbeat">🥳 Alegre / Cóctel</option>
+                            <option value="Latino / Fiesta">💃 Latino / Fiesta</option>
+                        </select>
+                    </details>
+                    
+                    <details id="showAllDetails" style="margin-top: 15px;">
+                        <summary onclick="filterSongs('showAll')">Ver Repertorio Completo (Sin Filtros)</summary>
+                        <p style="color:#777; font-size: 14px; margin-top: 5px;">Haga clic aquí para mostrar las 96 canciones en orden alfabético.</p>
+                    </details>
+                </div>
+            </details>
+
+            <div class="songs-list" id="popularSongsList">
+                <p style="color:#777; padding: 20px; text-align: center;">Por favor, seleccione el **Tipo de Evento** para ver sugerencias, o use los filtros de Mood y Lista Completa de arriba.</p>
+            </div>
+            
+        </div>
+
+        <div class="card">
+            <div class="title-section">✨ Su Lista Elegida</div>
+            <div class="selected-list" id="selectedList">
+                <p style="color:#777;">Aún no ha seleccionado ninguna pieza musical.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- CONSTANTES Y URL ---
+        // ¡IMPORTANTE! Reemplaza este enlace con tu URL de Google Apps Script.
+        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwPErFppFiYcteHmNsEM_hiPqNzb1H7wtFylmYGQZ1_DRH027OTHOxSFkji6NV6bNfa0w/exec"; 
+
+        // --- Mapeo de Evento a Secciones y Filtros Sugeridos ---
+        const eventSectionsMap = {
+            "Boda": [
+                { name: "👰 Entrada de la Novia / Novio", filter: "Solemnidad / Épico", label: "Música de alto impacto y sentimental." },
+                { name: "💍 Intercambio de Anillos / Votos", filter: "Suave / Melódico", label: "Piezas suaves y emotivas, de fondo." },
+                { name: "🥂 Cóctel y Brindis", filter: "Elegante / Clásico", label: "Jazz, Bolero o Pop elegante para amenizar." },
+                { name: "💃 Fiesta y Baile", filter: "Alegre / Upbeat", label: "Música rítmica y movida para iniciar la fiesta." }
+            ],
+            "Boda civil": [
+                { name: "✍️ Firma de Actas", filter: "Suave / Melódico", label: "Música tranquila y elegante durante el protocolo." },
+                { name: "🥂 Brindis y Fotos", filter: "Elegante / Clásico", label: "Jazz o música de cóctel." }
+            ],
+            "XV Años": [
+                { name: "👑 Entrada de la Quinceañera", filter: "Solemnidad / Épico", label: "Pieza épica o tradicional para la gran entrada." },
+                { name: "💖 Vals Principal con el Padre", filter: "Suave / Melódico", label: "Vals moderno o canción lenta especial." },
+                { name: "🥳 Baile con Amigos / Moderno", filter: "Alegre / Upbeat", label: "Música Pop o Electrónica de moda." },
+                { name: "💃 Latino / Reguetón", filter: "Latino / Fiesta", label: "Ritmos latinos populares para la pista." }
+            ],
+            "Cumpleaños": [
+                { name: "🎂 Pastel y Mañanitas", filter: "Suave / Melódico", label: "Música emotiva para el momento del pastel." },
+                { name: "🥳 Recepción y Celebración", filter: "Alegre / Upbeat", label: "Pop, rock ligero o música dinámica." },
+                { name: "🥂 Música de Cena", filter: "Elegante / Clásico", label: "Instrumental suave o Jazz para el banquete." }
+            ],
+            "Baby shower": [
+                { name: "🤰 Entrada y Bienvenida", filter: "Suave / Melódico", label: "Música tranquila y tierna de fondo." },
+                { name: "🧸 Juegos y Apertura de Regalos", filter: "Alegre / Upbeat", label: "Música ligera y optimista." },
+                { name: "☕ Música de Fondo", filter: "Elegante / Clásico", label: "Música ambiental instrumental para la convivencia." }
+            ],
+            "Evento Corporativo": [
+                { name: "🎤 Bienvenida y Protocolo", filter: "Elegante / Clásico", label: "Música instrumental profesional." },
+                { name: "🍽️ Cena o Networking", filter: "Suave / Melódico", label: "Música de fondo, acústica o pop suave." },
+                { name: "🎉 Cierre y Celebración", filter: "Alegre / Upbeat", label: "Música dinámica para levantar el ánimo." }
+            ],
+            // Otros eventos no necesitan mapeo, se manejan con los filtros generales.
+        };
+
+        // --- LISTA COMPLETA DE 96 CANCIONES CLASIFICADAS POR MOOD ---
+        const popularSongs = [
+            { title: "Ain´t Got You (Alicia Keys)", tags: ["Elegante / Clásico", "Suave / Melódico"] },
+            { title: "A Sky Full of Stars (Coldplay)", tags: ["Alegre / Upbeat", "Suave / Melódico"] },
+            { title: "A Thousand Years (Christina Perri)", tags: ["Solemnidad / Épico", "Suave / Melódico"] },
+            { title: "Alan Walker - Faded", tags: ["Alegre / Upbeat", "Suave / Melódico"] },
+            { title: "All of Me (John Legend)", tags: ["Solemnidad / Épico", "Suave / Melódico"] },
+            { title: "Apologize (OneRepublic)", tags: ["Suave / Melódico", "Solemnidad / Épico"] },
+            { title: "As It Was (Harry Styles)", tags: ["Alegre / Upbeat", "Suave / Melódico"] },
+            { title: "Bailando (Enrique Iglesias)", tags: ["Latino / Fiesta", "Alegre / Upbeat"] },
+            { title: "Bésame Mucho", tags: ["Elegante / Clásico", "Latino / Fiesta"] },
+            { title: "Break My Heart (Dua Lipa)", tags: ["Alegre / Upbeat", "Suave / Melódico"] },
+            { title: "Burning Love (Elvis Presley)", tags: ["Alegre / Upbeat", "Elegante / Clásico"] },
+            { title: "Calm Down (Selena Gomez)", tags: ["Latino / Fiesta", "Alegre / Upbeat"] },
+            { title: "Can´t Help Falling In Love (Elvis Presley)", tags: ["Solemnidad / Épico", "Elegante / Clásico"] },
+            { title: "Can´t Stop The Feeling (Justin Timberlake)", tags: ["Alegre / Upbeat", "Latino / Fiesta"] },
+            { title: "Carresse Sur L´ocean (Bruno Coulais - Les Choristes)", tags: ["Elegante / Clásico", "Suave / Melódico"] },
+            { title: "Clocks (Coldplay)", tags: ["Alegre / Upbeat", "Suave / Melódico"] },
+            { title: "Closer (Halsey, Chainsmokers)", tags: ["Alegre / Upbeat", "Suave / Melódico"] },
+            { title: "Close To You (The Carpenters)", tags: ["Elegante / Clásico", "Suave / Melódico"] },
+            { title: "Cold Heart (Dua Lipa)", tags: ["Alegre / Upbeat", "Suave / Melódico"] },
+            { title: "Con Te Partirò (Andrea Bocelli)", tags: ["Solemnidad / Épico", "Elegante / Clásico"] },
+            { title: "Dance The Night (Dua Lipa)", tags: ["Alegre / Upbeat", "Elegante / Clásico"] },
+            { title: "Despacito (Luis Fonsi)", tags: ["Latino / Fiesta", "Alegre / Upbeat"] },
+            { title: "Die With A Smile (Bruno Mars)", tags: ["Suave / Melódico", "Alegre / Upbeat"] },
+            { title: "Faded (Alan Walker)", tags: ["Alegre / Upbeat", "Suave / Melódico"] },
+            { title: "Feel So Close (Calvin Harris)", tags: ["Alegre / Upbeat", "Suave / Melódico"] },
+            { title: "Firework (Katy Perry)", tags: ["Alegre / Upbeat", "Solemnidad / Épico"] },
+            { title: "Fix You (Coldplay)", tags: ["Solemnidad / Épico", "Suave / Melódico"] },
+            { title: "Flowers (Miley Cyrus)", tags: ["Alegre / Upbeat", "Suave / Melódico"] },
+            { title: "Fly Me To The Moon (Frank Sinatra)", tags: ["Elegante / Clásico", "Suave / Melódico"] },
+            { title: "Get Lucky (Daft Punk)", tags: ["Alegre / Upbeat", "Elegante / Clásico"] },
+            { title: "Girl On Fire (Alicia Keys)", tags: ["Alegre / Upbeat", "Elegante / Clásico"] },
+            { title: "Girls Like You (Maroon 5)", tags: ["Alegre / Upbeat", "Suave / Melódico"] },
+            { title: "Guantanamera", tags: ["Latino / Fiesta", "Alegre / Upbeat"] },
+            { title: "Halo (Beyonce)", tags: ["Solemnidad / Épico", "Suave / Melódico"] },
+            { title: "Havana (Camila Cabello)", tags: ["Latino / Fiesta", "Alegre / Upbeat"] },
+            { title: "Hello (Adele)", tags: ["Solemnidad / Épico", "Suave / Melódico"] },
+            { title: "Hymn For The Weekend (Coldplay)", tags: ["Alegre / Upbeat", "Latino / Fiesta"] },
+            { title: "I Ain´t Worried (OneRepublic)", tags: ["Alegre / Upbeat", "Latino / Fiesta"] },
+            { title: "IDGAF (Dua Lipa)", tags: ["Alegre / Upbeat", "Suave / Melódico"] },
+            { title: "I´m Good (David Guetta)", tags: ["Alegre / Upbeat", "Latino / Fiesta"] },
+            { title: "I´m Not The Only One (Sam Smith)", tags: ["Suave / Melódico", "Elegante / Clásico"] },
+            { title: "In My Place (Coldplay)", tags: ["Suave / Melódico", "Alegre / Upbeat"] },
+            { title: "I´m Yours (Jason Mraz)", tags: ["Suave / Melódico", "Alegre / Upbeat"] },
+            { title: "Is This Love (Bob Marley)", tags: ["Latino / Fiesta", "Alegre / Upbeat"] },
+            { title: "Just The Way You Are (Bruno Mars)", tags: ["Suave / Melódico", "Solemnidad / Épico"] },
+            { title: "La Bachata (Manuel Turizo)", tags: ["Latino / Fiesta", "Suave / Melódico"] },
+            { title: "La Bamba", tags: ["Latino / Fiesta", "Alegre / Upbeat"] },
+            { title: "La Vie En Rose (Edith Piaf)", tags: ["Elegante / Clásico", "Suave / Melódico"] },
+            { title: "Let It Be (The Beatles)", tags: ["Elegante / Clásico", "Suave / Melódico"] },
+            { title: "Loco (Enrique Iglesias)", tags: ["Latino / Fiesta", "Suave / Melódico"] },
+            { title: "Locked Out Of Heaven (Bruno Mars)", tags: ["Alegre / Upbeat", "Elegante / Clásico"] },
+            { title: "Love Me Harder (Ariana Grande)", tags: ["Suave / Melódico", "Alegre / Upbeat"] },
+            { title: "Love Me Like You Do (Ellie Goulding)", tags: ["Solemnidad / Épico", "Suave / Melódico"] },
+            { title: "Love On The Brain (Rihanna)", tags: ["Suave / Melódico", "Elegante / Clásico"] },
+            { title: "Love Story (Taylor Swift)", tags: ["Suave / Melódico", "Solemnidad / Épico"] },
+            { title: "Lovely (Billie Eilish, Khalid)", tags: ["Suave / Melódico", "Solemnidad / Épico"] },
+            { title: "Memories (Maroon 5)", tags: ["Suave / Melódico", "Alegre / Upbeat"] },
+            { title: "My Heart Will Go On (Horner - Titanic)", tags: ["Solemnidad / Épico", "Suave / Melódico"] },
+            { title: "My Way (Frank Sinatra)", tags: ["Elegante / Clásico", "Suave / Melódico"] },
+            { title: "New York, New York (Frank Sinatra)", tags: ["Elegante / Clásico", "Alegre / Upbeat"] },
+            { title: "No One (Alicia Keys)", tags: ["Suave / Melódico", "Elegante / Clásico"] },
+            { title: "No Woman, No Cry (Bob Marley)", tags: ["Latino / Fiesta", "Alegre / Upbeat"] },
+            { title: "Only Time (Enya)", tags: ["Solemnidad / Épico", "Suave / Melódico"] },
+            { title: "Perfect (Ed Sheeran)", tags: ["Solemnidad / Épico", "Suave / Melódico"] },
+            { title: "Por Una Cabeza (Carlos Gardel)", tags: ["Elegante / Clásico", "Solemnidad / Épico"] },
+            { title: "Pumped Up Kicks (Foster The People)", tags: ["Alegre / Upbeat", "Suave / Melódico"] },
+            { title: "Quizás, Quizás, Quizás (Farrés)", tags: ["Elegante / Clásico", "Latino / Fiesta"] },
+            { title: "Roar (Katy Perry)", tags: ["Alegre / Upbeat", "Solemnidad / Épico"] },
+            { title: "Rolling In The Deep (Adele)", tags: ["Alegre / Upbeat", "Elegante / Clásico"] },
+            { title: "Save Your Tears (The Weeknd)", tags: ["Alegre / Upbeat", "Elegante / Clásico"] },
+            { title: "Say Something (Christina Aguilera)", tags: ["Suave / Melódico", "Solemnidad / Épico"] },
+            { title: "See You Again (Charlie Puth, Wiz Khalifa)", tags: ["Suave / Melódico", "Solemnidad / Épico"] },
+            { title: "Señorita (Camila Cabello)", tags: ["Latino / Fiesta", "Alegre / Upbeat"] },
+            { title: "Sign Of The Times (Harry Styles)", tags: ["Solemnidad / Épico", "Suave / Melódico"] },
+            { title: "Someone Like You (Adele)", tags: ["Solemnidad / Épico", "Suave / Melódico"] },
+            { title: "Something Just Like This (Coldplay/Chainsmokers)", tags: ["Alegre / Upbeat", "Suave / Melódico"] },
+            { title: "Stand By Me (Ben E. King)", tags: ["Elegante / Clásico", "Solemnidad / Épico"] },
+            { title: "Stay With Me (Sam Smith)", tags: ["Suave / Melódico", "Solemnidad / Épico"] },
+            { title: "Súbeme La Radio (Enrique Iglesias)", tags: ["Latino / Fiesta", "Alegre / Upbeat"] },
+            { title: "Sugar (Maroon 5)", tags: ["Alegre / Upbeat", "Suave / Melódico"] },
+            { title: "Sunflower (Post Malone)", tags: ["Alegre / Upbeat", "Suave / Melódico"] },
+            { title: "Sweet Child O' Mine (Guns N´ Roses)", tags: ["Solemnidad / Épico", "Alegre / Upbeat"] },
+            { title: "Talking To The Moon (Bruno Mars)", tags: ["Suave / Melódico", "Solemnidad / Épico"] },
+            { title: "Team (Lorde)", tags: ["Alegre / Upbeat", "Suave / Melódico"] },
+            { title: "The Scientist (Coldplay)", tags: ["Suave / Melódico", "Solemnidad / Épico"] },
+            { title: "Three Little Birds (Bob Marley)", tags: ["Latino / Fiesta", "Alegre / Upbeat"] },
+            { title: "Titanium (David Guetta)", tags: ["Alegre / Upbeat", "Solemnidad / Épico"] },
+            { title: "Tusa (Karol G)", tags: ["Latino / Fiesta", "Alegre / Upbeat"] },
+            { title: "Uptown Funk (Bruno Mars)", tags: ["Alegre / Upbeat", "Latino / Fiesta"] },
+            { title: "Versace On The Floor (Bruno Mars)", tags: ["Elegante / Clásico", "Suave / Melódico"] },
+            { title: "Viva La Vida (Coldplay)", tags: ["Solemnidad / Épico", "Alegre / Upbeat"] },
+            { title: "Vivo Per Lei (Andrea Bocelli)", tags: ["Solemnidad / Épico", "Elegante / Clásico"] },
+            { title: "Wake Me Up (Avicii)", tags: ["Alegre / Upbeat", "Solemnidad / Épico"] },
+            { title: "We Found Love (Calvin Harris)", tags: ["Alegre / Upbeat", "Suave / Melódico"] },
+            { title: "When I Was Your Man (Bruno Mars)", tags: ["Suave / Melódico", "Elegante / Clásico"] },
+            { title: "Yellow (Coldplay)", tags: ["Suave / Melódico", "Solemnidad / Épico"] },
+            { title: "Young Dumb (Khalid)", tags: ["Suave / Melódico", "Alegre / Upbeat"] }
+        ];
+        
+        let selectedSongs = [];
+        
+        // --- FUNCIÓN PRINCIPAL DE CAMBIO DE EVENTO (MODIFICADA) ---
+        function onEventTypeChange() {
+            const selectedType = document.querySelector('input[name="eventType"]:checked')?.value;
+            const specificSelector = document.getElementById('eventSpecificSelector');
+            const sectionFilter = document.getElementById('eventSectionFilter');
+            
+            sectionFilter.innerHTML = ''; // Limpia opciones anteriores
+            
+            if (selectedType && eventSectionsMap[selectedType]) {
+                const sections = eventSectionsMap[selectedType];
+                
+                // Mostrar el selector de secciones (Parte del Evento)
+                specificSelector.style.display = 'block';
+                document.getElementById('eventSpecificTitle').textContent = `1. Seleccione la Parte del Evento: ${selectedType}`;
+                
+                // Opción por defecto para borrar filtro de sección
+                const defaultOption = document.createElement('option');
+                defaultOption.value = 'showAll';
+                defaultOption.textContent = `--- Mostrar lista completa / Eliminar filtro de sección ---`;
+                sectionFilter.appendChild(defaultOption);
+
+                sections.forEach(section => {
+                    const option = document.createElement('option');
+                    // El valor es el filtro (Mood) que se aplicará
+                    option.value = section.filter; 
+                    // El texto visible incluye el nombre de la sección y la sugerencia
+                    option.textContent = `${section.name} (Sugiere: ${section.filter}) - ${section.label}`;
+                    sectionFilter.appendChild(option);
+                });
+
+                // **CLAVE:** No ocultamos moodSelectorDetails ni showAllDetails.
+
+                // Por defecto, muestra las canciones de la primera sección sugerida o toda la lista.
+                filterSongs(sections[0].filter);
+
+            } else {
+                // Para "Otros" o eventos sin mapeo específico
+                specificSelector.style.display = 'none';
+                
+                // Si es "Otros" o no hay evento seleccionado, mostramos la lista completa
+                filterSongs('showAll');
+            }
+        }
+
+        // --- FUNCIÓN DE FILTRADO POR SECCIÓN (Llama a filterSongs con el Mood) ---
+        function filterSongsBySection(filterTag) {
+            filterSongs(filterTag);
+        }
+
+        // --- FUNCIÓN GENERAL DE FILTRADO POR TAG/MOOD ---
+        function filterSongs(filterTag) {
+            let songsToRender = [];
+            
+            if (filterTag === 'showAll') {
+                // Mostrar todas las canciones en orden alfabético por título
+                songsToRender = [...popularSongs].sort((a, b) => a.title.localeCompare(b.title));
+            } else {
+                // Filtrar por tag seleccionado
+                songsToRender = popularSongs.filter(song => song.tags.includes(filterTag));
+            }
+            
+            renderSongList(songsToRender, 'popularSongsList', filterTag);
+        }
+
+        // --- FUNCIONES DE RENDERIZADO Y LÓGICA DE SELECCIÓN ---
+        function renderSongList(songs, listElementId, filterTag) {
+            const listElement = document.getElementById(listElementId);
+            listElement.innerHTML = '';
+            
+            if (songs.length === 0) {
+                 listElement.innerHTML = "<p style='color:#777; padding: 20px; text-align: center;'>No hay canciones con esta etiqueta. Intenta con otro filtro.</p>";
+                 return;
+            }
+
+            // Etiqueta informativa
+            const infoText = document.createElement('p');
+            infoText.style.cssText = 'font-size: 14px; font-style: italic; color: var(--color-acento); border-bottom: 1px dotted var(--color-borde-suave); padding-bottom: 10px;';
+            infoText.textContent = filterTag === 'showAll' 
+                ? `Mostrando las 96 canciones en orden alfabético.` 
+                : `Sugerencias para el ambiente: "${filterTag}" (${songs.length} canciones).`;
+            listElement.appendChild(infoText);
+
+
+            songs.forEach(song => {
+                const div = document.createElement("div");
+                div.classList.add("song-item");
+                div.dataset.songName = song.title; 
+                div.onclick = () => toggleSongSelection(song.title);
+
+                const titleSpan = document.createElement('span');
+                titleSpan.className = 'song-title';
+                titleSpan.textContent = song.title;
+
+                const youtubeLink = document.createElement('a');
+                youtubeLink.className = 'youtube-link';
+                const searchQuery = encodeURIComponent(`${song.title} violin cover`);
+                youtubeLink.href = `https://www.youtube.com/results?search_query=${searchQuery}`;
+                youtubeLink.target = '_blank'; 
+                youtubeLink.textContent = 'Escuchar 🎵';
+                
+                youtubeLink.onclick = (e) => e.stopPropagation();
+
+                div.appendChild(titleSpan);
+                div.appendChild(youtubeLink);
+                listElement.appendChild(div);
+                
+                // Aplicar la clase 'song-selected' si ya está elegida
+                if (selectedSongs.includes(song.title)) {
+                    div.classList.add('song-selected');
+                }
+            });
+        }
+
+        function toggleSongSelection(songTitle) {
+            const index = selectedSongs.indexOf(songTitle);
+            if (index === -1) { selectedSongs.push(songTitle); } 
+            else { selectedSongs.splice(index, 1); }
+            updateSongItemsUI();
+            renderSelectedList();
+        }
+        
+        function updateSongItemsUI() {
+            // Actualiza el estado visual de TODAS las canciones en pantalla (incluso las filtradas)
+            const allSongItems = document.querySelectorAll('.song-item');
+            allSongItems.forEach(item => {
+                const songName = item.dataset.songName; 
+                if (selectedSongs.includes(songName)) {
+                    item.classList.add('song-selected');
+                } else {
+                    item.classList.remove('song-selected');
+                }
+            });
+        }
+
+        function renderSelectedList() {
+            const selectedList = document.getElementById("selectedList");
+            selectedList.innerHTML = "";
+            if (selectedSongs.length === 0) {
+                selectedList.innerHTML = "<p style='color:#777;'>Aún no ha seleccionado ninguna pieza musical.</p>";
+            } else {
+                selectedSongs.forEach((song, i) => {
+                    const p = document.createElement("p");
+                    p.textContent = `${i + 1}. ${song}`;
+                    selectedList.appendChild(p);
+                });
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            // Carga la lista completa al inicio para que no esté vacía
+            filterSongs('showAll');
+            renderSelectedList(); 
+            document.getElementById('eventSpecificSelector').style.display = 'none';
+        });
+
+        // --- LÓGICA DE ENVÍO (Debe coincidir con tu Google Apps Script) ---
+
+        function buildData() {
+            const contractName = document.getElementById("contractName").value.trim();
+            const eventDate = document.getElementById("eventDate").value.trim();
+            const eventTime = document.getElementById("eventTime").value.trim();
+            const phoneNumber = document.getElementById("phoneNumber").value.trim();
+            const eventLocation = document.getElementById("eventLocation").value.trim();
+            const previousEvent = document.getElementById("previousEvent").value.trim();
+            
+            let eventType = '';
+            const selectedType = document.querySelector('input[name="eventType"]:checked');
+            
+            if (selectedType) {
+                eventType = selectedType.value;
+                if (eventType === 'Otros') {
+                    const otherText = document.getElementById("otherEventType").value.trim();
+                    if (otherText === '') {
+                        alert("Por favor, especifique el tipo de evento en el campo 'Otros'.");
+                        return null;
+                    }
+                    eventType = `Otros: ${otherText}`;
+                }
+            }
+            
+            if (!contractName || !eventDate || !selectedType || selectedSongs.length === 0) {
+                if (!contractName || !eventDate) alert("Por favor, complete el Nombre del Contratante y la Fecha del Evento.");
+                else if (!selectedType) alert("Por favor, seleccione el Tipo de Evento.");
+                else if (selectedSongs.length === 0) alert("Por favor, seleccione al menos una canción para enviar el repertorio.");
+                return null;
+            }
+
+            return {
+                contractName: contractName,
+                eventDate: eventDate,
+                eventTime: eventTime,
+                phoneNumber: phoneNumber,
+                eventLocation: eventLocation,
+                eventType: eventType,
+                previousEvent: previousEvent,
+                numSongs: selectedSongs.length,
+                selectedSongs: selectedSongs.join(' | ') 
+            };
+        }
+        
+        function sendToGoogleSheets() {
+            const formData = buildData();
+            if (!formData) return Promise.resolve(false);
+
+            const encodedData = new URLSearchParams(formData).toString();
+
+            return fetch(APPS_SCRIPT_URL, {
+                method: "POST",
+                body: encodedData,
+                mode: "no-cors", 
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+            })
+            .then(response => {
+                console.log('Datos enviados a Google Sheets.');
+                return true; 
+            })
+            .catch(error => {
+                console.error('Error al enviar a Google Sheets:', error);
+                return false; 
+            });
+        }
+        
+        async function sendToGoogleSheetsAndContact() {
+            const data = buildData();
+            if (!data) return;
+
+            document.getElementById('sendingMessage').style.display = 'block';
+            document.querySelector('.btn-submit-all').disabled = true;
+
+            const success = await sendToGoogleSheets();
+
+            document.getElementById('sendingMessage').style.display = 'none';
+            document.querySelector('.btn-submit-all').disabled = false;
+
+            if (success) {
+                alert("¡Su lista ha sido guardada en nuestra base de datos! A continuación, elija WhatsApp o Email para enviarnos el mensaje de confirmación.");
+                document.getElementById('sendButtonsContainer').style.display = 'flex';
+            } else {
+                 alert("¡Su lista NO se pudo guardar automáticamente! Por favor, use los botones de abajo para enviarnos el mensaje directo y evitar perder su selección.");
+                 document.getElementById('sendButtonsContainer').style.display = 'flex';
+            }
+        }
+        
+        // --- FUNCIONES DE CONTACTO (WhatsApp y Email) ---
+        function buildMessage() {
+            const data = buildData();
+            if (!data) return null; 
+
+            let messageText = `¡Hola! \n\nAcabo de completar la selección de repertorio para mi evento. Por favor, revisen mi lista y los detalles a continuación: \n\n`;
+            
+            messageText += `*Detalles del Evento:*\n`;
+            messageText += `Nombre Contratante: ${data.contractName}\n`;
+            messageText += `Fecha: ${data.eventDate}\n`;
+            if (data.eventTime) messageText += `Hora: ${data.eventTime}\n`;
+            messageText += `Tipo: ${data.eventType}\n`;
+            if (data.phoneNumber) messageText += `Teléfono: ${data.phoneNumber}\n`;
+            if (data.eventLocation) messageText += `Lugar: ${data.eventLocation}\n`;
+            if (data.previousEvent) messageText += `Visto en Evento (Pr.): ${data.previousEvent}\n`;
+
+            const songList = data.selectedSongs.split(' | ').map((song, i) => `${i + 1}. ${song}`).join('\n');
+            messageText += `\n*Lista de Piezas Elegidas (${data.numSongs}):*\n${songList}`;
+            
+            messageText += `\n--- Enviado desde la herramienta de selección de repertorio. ---\n\n`;
+            
+            messageText += `*Pronto le contactaremos para enviarle una propuesta de servicio personalizada, con planes y tarifas según sus necesidades.*\n\n`;
+            messageText += `¡Esperamos su confirmación!`;
+            
+            return { subject: `Lista Musical: ${data.contractName} (${data.eventDate}) - Revisión`, body: messageText };
+        }
+
+        function sendWhatsApp() {
+            const data = buildMessage();
+            if (!data) return;
+            const phoneNumber = "50259268980";
+            const whatsappBody = encodeURIComponent(data.body);
+            const whatsappLink = `https://wa.me/${phoneNumber}?text=${whatsappBody}`;
+            window.open(whatsappLink, '_blank');
+        }
+
+        function sendEmail() {
+            const data = buildMessage();
+            if (!data) return;
+            const subject = encodeURIComponent(data.subject);
+            const body = encodeURIComponent(data.body);
+            const mailtoLink = `mailto:jhviolinista@gmail.com?subject=${subject}&body=${body}`;
+            window.open(mailtoLink, '_blank');
+        }
+
+    </script>
+</body>
+</html>
